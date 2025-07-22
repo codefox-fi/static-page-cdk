@@ -54,8 +54,8 @@ The application requires some context values for deployment:
 ```bash
 npx cdk deploy --all \
   --context domainName=yourdomain.com \
-  --context hostedZoneId=Z1234567890ABC \
   --context region=eu-north-1 \
+  --context hostedZoneId=Z1234567890ABC \
   --context indexDocument=index.html \
   --context errorDocument=error.html \
   --context deploymentPath=./dist
@@ -63,20 +63,20 @@ npx cdk deploy --all \
 
 ### Context Parameters
 
-- `domainName`: The domain name for your static website
-- `hostedZoneId`: The ID of the Route53 hosted zone for the domain
-- `region`: (Optional) The AWS region for the main stack (defaults to your configured AWS CLI region)
-- `indexDocument`: (Optional) The index document for the S3 bucket (default: index.html)
-- `errorDocument`: (Optional) The error document for the S3 bucket
-- `deploymentPath`: (Optional) The local path to the static site files to deploy (default: ./dist)
+|      Key      | Required |  Default  | Description |
+| ------------- | -------- | --------- | ----------- |
+| `domainName`     | x |               | The domain name for your static website. |
+| `region`         | x | `eu-north-1`  | The AWS region for the main stack. If not provided, the default value `eu-north-1` will be used. |
+| `hostedZoneId`   |   |               | The ID of the Route53 hosted zone for the domain. If not provided, will create a new hosted zone. |
+| `indexDocument`  |   | `index.html`  | The index document for the S3 bucket. |
+| `errorDocument`  |   |               | The error document for the S3 bucket. |
+| `deploymentPath` |   |               | The local path to the static site files to deploy. If not provided, no files will be uploaded and you have to manage them manually. |
 
 ## Customization Options
 
 The StaticPageCdkStack can be customized through props and context:
 
 - **certificateArn**: Pass a custom certificate ARN instead of using the CertificateStack
-- **priceClass**: CloudFront is configured to use PRICE_CLASS_100 (US, Canada, Europe) by default
-- **bucketName**: The S3 bucket is named based on the domain name (`${domainName}-static-page`)
 
 ## CloudFormation Outputs
 

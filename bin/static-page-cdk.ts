@@ -7,20 +7,20 @@ import { CertificateStack } from '../lib/certificate-stack';
 const app = new cdk.App();
 
 const domainName = app.node.tryGetContext('domainName');
-const hostedZoneId = app.node.tryGetContext('hostedZoneId');
+const region = app.node.tryGetContext('region') || 'eu-north-1';
 
-if (!domainName || !hostedZoneId) {
-  throw new Error('Domain name and hosted zone ID must be provided in the context');
+if (!domainName || !region) {
+  throw new Error('Domain name and region must be provided in the context');
 }
 
 const certificateStack = new CertificateStack(app, 'StaticPageCertificateStack', {
   domainName,
-  hostedZoneId
+  hostedZoneId: app.node.tryGetContext('hostedZoneId')
 });
 
 // Create the main stack (can be in any region)
 const mainStack = new StaticPageCdkStack(app, 'StaticPageCdkStack', {
-  env: app.node.tryGetContext('region') ? { region: app.node.tryGetContext('region') } : undefined,
+  env: { region },
   crossRegionReferences: true,
   certificateArn: certificateStack.certificate.certificateArn
 });
