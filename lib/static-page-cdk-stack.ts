@@ -1,7 +1,7 @@
 import { AllowedMethods, Distribution, PriceClass, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
-import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { ARecord, HostedZone, IHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { Construct } from 'constructs';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
@@ -22,13 +22,21 @@ export class StaticPageCdkStack extends Stack {
     }
 
     const hostedZoneId: string | undefined = this.node.tryGetContext('hostedZoneId');
+    let hostedZone: IHostedZone | undefined;
     if (!hostedZoneId) {
-      throw new Error('Hosted zone ID must be provided in the context');
+      hostedZone = new HostedZone(this, 'StaticPageHostedZone', {
+        zoneName: domainName,
+      });
+    } else {
+      hostedZone = HostedZone.fromHostedZoneAttributes(this, 'ImportedHostedZone', {
+        hostedZoneId,
+        zoneName: domainName,
+      });
     }
 
     const errorDocument: string | undefined = this.node.tryGetContext('errorDocument');
     const indexDocument: string = this.node.tryGetContext('indexDocument') ?? 'index.html';
-    const deploymentPath: string = this.node.tryGetContext('deploymentPath') ?? './dist';
+    const deploymentPath: string | undefined = this.node.tryGetContext('deploymentPath');
 
     let certificateArn = props?.certificateArn;
 
@@ -44,11 +52,6 @@ export class StaticPageCdkStack extends Stack {
     new CfnOutput(this, 'BucketName', {
       value: s3Bucket.bucketName,
       description: 'The name of the S3 bucket for the static page',
-    });
-
-    const hostedZone = HostedZone.fromHostedZoneAttributes(this, 'ImportedHostedZone', {
-      hostedZoneId,
-      zoneName: domainName,
     });
 
     const distribution = new Distribution(this, 'StaticPageDistribution', {
@@ -69,12 +72,14 @@ export class StaticPageCdkStack extends Stack {
       description: 'The ID of the CloudFront distribution',
     });
 
-    new BucketDeployment(this, 'DeployStaticWebsite', {
-      sources: [Source.asset(deploymentPath)],
-      destinationBucket: s3Bucket,
-      distribution,
-      distributionPaths: ['/*'],
-    });
+    if (deploymentPath) {
+      new BucketDeployment(this, 'DeployStaticWebsite', {
+        sources: [Source.asset(deploymentPath)],
+        destinationBucket: s3Bucket,
+        distribution,
+        distributionPaths: ['/*'],
+      });
+    }
   
     if (certificateArn) {
       new ARecord(this, 'SiteAliasRecord', {
