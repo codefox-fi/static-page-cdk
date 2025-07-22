@@ -66,7 +66,7 @@ npx cdk deploy --all \
 |      Key      | Required |  Default  | Description |
 | ------------- | -------- | --------- | ----------- |
 | `domainName`     | x |               | The domain name for your static website. |
-| `region`         | x | `eu-north-1`  | The AWS region for the main stack (needs to be explicitly configured due to cross-region access). |
+| `region`         | x | `eu-north-1`  | The AWS region for the main stack. If not provided, the default value `eu-north-1` will be used. |
 | `hostedZoneId`   |   |               | The ID of the Route53 hosted zone for the domain. If not provided, will create a new hosted zone. |
 | `indexDocument`  |   | `index.html`  | The index document for the S3 bucket. |
 | `errorDocument`  |   |               | The error document for the S3 bucket. |
