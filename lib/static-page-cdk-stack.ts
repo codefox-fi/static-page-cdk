@@ -22,7 +22,7 @@ export class StaticPageCdkStack extends Stack {
     }
 
     const hostedZoneId: string | undefined = this.node.tryGetContext('hostedZoneId');
-    let hostedZone: IHostedZone | undefined;
+    let hostedZone: IHostedZone;
     if (!hostedZoneId) {
       hostedZone = new HostedZone(this, 'StaticPageHostedZone', {
         zoneName: domainName,
