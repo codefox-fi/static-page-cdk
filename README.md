@@ -75,8 +75,6 @@ npx cdk deploy --all \
 The StaticPageCdkStack can be customized through props and context:
 
 - **certificateArn**: Pass a custom certificate ARN instead of using the CertificateStack
-- **priceClass**: CloudFront is configured to use PRICE_CLASS_100 (US, Canada, Europe) by default
-- **bucketName**: The S3 bucket is named based on the domain name (`${domainName}-static-page`)
 
 ## CloudFormation Outputs
 
